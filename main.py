@@ -42,3 +42,15 @@ def find_student(name : str = Query(...,description="Name of the Student to sear
             raise HTTPException(status_code=404, detail="Student Not Found")
 
 # Combining Path and Query Parameter
+@app.get("/find-student/{student_id}")
+def find_student(student_id: int = Path(..., description="ID of the student to search"),
+                 name: str = Query(None, description="Name to match (optional)")):
+    if student_id not in students:
+        raise HTTPException(status_code=404, detail="Student ID not found")
+
+    student = students[student_id]
+
+    if name and student["Name"].lower() != name.lower():
+        raise HTTPException(status_code=400, detail="Name doesn't match the student ID")
+
+    return student
