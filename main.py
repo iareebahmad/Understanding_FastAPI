@@ -1,56 +1,21 @@
-from fastapi import FastAPI, HTTPException, Path, Query
+from fastapi import FastAPI
 
 app = FastAPI()
 
-students = {
-    1 : {
-        "Name" : "Mohammad Areeb Ahmad",
-        "Age" : 24,
-        "Gender" : "Male"
-    },
-    2 : {
-        "Name" : "Asim Khan",
-        "Age"  : 25,
-        "Gender" : "Male"
-    },
-    3 : {
-        "Name" : "Kamla Haris",
-        "Age" : 36,
-        "Gender" : "Female"
-    }
+books = [
+    {'Title': 'Title One', 'Author': 'Author One', 'category': 'science'},
+    {'Title': 'Title Two', 'Author': 'Author Two', 'category': 'science'},
+    {'Title': 'Title Three', 'Author': 'Author Three', 'category': 'history'},
+    {'Title': 'Title Four', 'Author': 'Author Four', 'category': 'math'},
+    {'Title': 'Title Five', 'Author': 'Author Five', 'category': 'math'},
+    {'Title': 'Title Six', 'Author': 'Author Six', 'category': 'math'}
+]
 
-}
-@app.get("/")
-def index():
-    return {"Name": "First Data"}
+@app.get("/demo", summary="Get all books", description="Returns the full list of available books.")
+def get_all_books():
+    return books
 
-# Path Parameter
-@app.get("/get-student/{student_id}")
-def get_students_info(student_id : int = Path(..., description="The ID of the student you wanna search",gt=0)):
-    if student_id in students:
-        return students[student_id]
-    else:
-        raise HTTPException(status_code=404, detail="Student Not Found")
+@app.get("/demo/{dynamic_param}", summary="Get book by dynamic param", description="Returns the value of the dynamic path parameter.")
+def get_book_by_param(dynamic_param: str):
+    return {'dynamic_param': dynamic_param}
 
-# Query Parameter
-@app.get("/find-student")
-def find_student(name : str = Query(...,description="Name of the Student to search")):
-    for student in students.values():
-        if student["Name"].lower() == name.lower():
-            return student
-    else:
-            raise HTTPException(status_code=404, detail="Student Not Found")
-
-# Combining Path and Query Parameter
-@app.get("/find-student/{student_id}")
-def find_student(student_id: int = Path(..., description="ID of the student to search"),
-                 name: str = Query(None, description="Name to match (optional)")):
-    if student_id not in students:
-        raise HTTPException(status_code=404, detail="Student ID not found")
-
-    student = students[student_id]
-
-    if name and student["Name"].lower() != name.lower():
-        raise HTTPException(status_code=400, detail="Name doesn't match the student ID")
-
-    return student
